@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "761481777681",
+    "project_id": "rma-projekt-89fd3",
+    "storage_bucket": "rma-projekt-89fd3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:761481777681:android:d399815b41945d304197b0",
+        "android_client_info": {
+          "package_name": "com.example.rma_projekt2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAV9DQoFf6BbZizL2lp0lvqdvOr_1a6ehw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
