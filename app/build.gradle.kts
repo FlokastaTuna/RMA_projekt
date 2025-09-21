@@ -70,8 +70,6 @@ dependencies {
     implementation ("com.google.android.gms:play-services-location:21.0.1")
     implementation ("com.google.maps.android:maps-compose:2.11.4")
 
-    //Notifikacije
-    implementation ("androidx.core:core:1.12.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

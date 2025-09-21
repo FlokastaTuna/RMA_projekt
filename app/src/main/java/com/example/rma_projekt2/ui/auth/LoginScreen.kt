@@ -66,9 +66,8 @@ fun LoginScreen(
             onClick = {
                 viewModel.login(email, password) { success, message ->
                     if (success) {
-                        // Navigate to screen1 after successful login
                         navController.navigate("home") {
-                            popUpTo("login") { inclusive = true } // remove login from backstack
+                            popUpTo("login") { inclusive = true }
                         }
                     } else {
                         error = message ?: "Login failed"

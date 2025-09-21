@@ -26,6 +26,7 @@ class CatchViewModel : ViewModel() {
     private val _availablePhotos = MutableStateFlow<List<String>>(emptyList())
     val availablePhotos: StateFlow<List<String>> = _availablePhotos
 
+    //za povlacenje riba
     fun fetchCatches(userId: String) {
         db.collection("catches")
             .whereEqualTo("userID", userId)
@@ -44,7 +45,7 @@ class CatchViewModel : ViewModel() {
                             longitude = doc.getDouble("longitude")
                         )
                     } catch (e: Exception) {
-                        null // Skip invalid documents
+                        null
                     }
                 }
                 _catches.value = items
@@ -54,6 +55,7 @@ class CatchViewModel : ViewModel() {
             }
     }
 
+    //za povlacenje slika
     fun fetchAvailablePhotos() {
         db.collection("availablePhotos")
             .get()
@@ -62,7 +64,7 @@ class CatchViewModel : ViewModel() {
                 _availablePhotos.value = photos
             }
             .addOnFailureListener {
-                _availablePhotos.value = emptyList() // Handle failure gracefully
+                _availablePhotos.value = emptyList()
             }
     }
 }

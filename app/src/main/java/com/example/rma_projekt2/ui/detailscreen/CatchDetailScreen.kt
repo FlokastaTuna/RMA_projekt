@@ -115,7 +115,7 @@ fun CatchDetailScreen(
                 )
                 if (c.latitude != null && c.longitude != null) {
                     val context = LocalContext.current
-                    val lat = c.latitude
+                        val lat = c.latitude
                     val lng = c.longitude
 
                     Spacer(Modifier.height(8.dp))

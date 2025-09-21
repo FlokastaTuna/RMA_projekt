@@ -1,7 +1,6 @@
 package com.example.rma_projekt2.ui.home
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,12 +39,12 @@ fun HomeScreen(
     val userName = currentUser.displayName ?: currentUser.email ?: "User"
     var menuExpanded by remember { mutableStateOf(false) }
 
-    var filterExpanded by remember { mutableStateOf(false) }
-    var selectedField by remember { mutableStateOf("None") }
-    var ascending by remember { mutableStateOf(true) }
-    val catches by viewModel.catches.collectAsState()
-    var loading by remember { mutableStateOf(true) }
-    var error by remember { mutableStateOf<String?>(null) }
+    var filterExpanded by remember { mutableStateOf(false) } //za sortiranje dropdown
+    var selectedField by remember { mutableStateOf("None") } //
+    var ascending by remember { mutableStateOf(true) } //za sortiranje
+    val catches by viewModel.catches.collectAsState() // uzima listu iz viewmodela
+    var loading by remember { mutableStateOf(true) } //
+    var error by remember { mutableStateOf<String?>(null) } //za error poruku
 
     LaunchedEffect(currentUser) {
         try {
@@ -62,7 +60,7 @@ fun HomeScreen(
 
     val filteredCatches = remember(catches, selectedField, ascending) {
         val sorted = when (selectedField) {
-            "FishType" -> catches.sortedBy { it.fishType.lowercase() }
+            "Fish" -> catches.sortedBy { it.fishType.lowercase() }
             "Weight" -> catches.sortedBy { it.weight }
             "Date" -> catches.sortedBy { it.createdAt }
             else -> catches
@@ -72,7 +70,7 @@ fun HomeScreen(
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 32.dp)) {
 
-        // --- TOP BAR with hamburger menu ---
+        // gornji dio, izbornik
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -105,12 +103,12 @@ fun HomeScreen(
                     HorizontalDivider()
                     DropdownMenuItem(
                         text = { Text(userName) },
-                        onClick = {} // not clickable, just shows user
+                        onClick = {} // samo pokazi usera
                     )
                     DropdownMenuItem(
                         text = { Text("Logout") },
                         onClick = {
-                            FirebaseAuth.getInstance().signOut()
+                            FirebaseAuth.getInstance().signOut() //log out
                             menuExpanded = false
                             navController.navigate("login") {
                                 popUpTo("home") { inclusive = true }
@@ -123,7 +121,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // --- Body content ---
+        // glavni dio
         if (loading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
@@ -132,7 +130,7 @@ fun HomeScreen(
             Text(text = error!!, color = MaterialTheme.colorScheme.error)
             Spacer(modifier = Modifier.height(16.dp))
         } else {
-            // Filter section
+            // sortiranje
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -146,7 +144,7 @@ fun HomeScreen(
                         expanded = filterExpanded,
                         onDismissRequest = { filterExpanded = false }
                     ) {
-                        listOf("None", "FishType", "Weight", "Date").forEach { field ->
+                        listOf("None", "Fish", "Weight", "Date").forEach { field ->
                             DropdownMenuItem(
                                 text = { Text(field) },
                                 onClick = {
@@ -178,7 +176,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Catch list or empty state
+            // prikazi listu ako je ima, ukoliko ne tekst koji kaze da nema nista
             if (filteredCatches.isEmpty()) {
                 Box(
                     modifier = Modifier
@@ -199,6 +197,7 @@ fun HomeScreen(
     }
 }
 
+//kompozable za prikaz dodanih riba na homescreenu
 @Composable
 fun CatchItem(catch: Catch, navController: NavHostController) {
     Card(
@@ -239,7 +238,7 @@ fun CatchItem(catch: Catch, navController: NavHostController) {
             )
 
             Text(
-                text = "️⚖️ Weight: ${catch.weight} kg",
+                text = "️Weight: ${catch.weight} kg",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

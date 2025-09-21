@@ -52,11 +52,11 @@ fun AddCatchScreen(
     var saving by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Photos
+    // za slike
     val availablePhotos by viewModel.availablePhotos.collectAsState()
     LaunchedEffect(Unit) { viewModel.fetchAvailablePhotos() }
 
-    // Map
+    // za kartu
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(45.8150, 15.9819), 6f)
     }
@@ -84,7 +84,7 @@ fun AddCatchScreen(
         }
     )
 
-    // Request/check permission when screen opens
+    // provjera za dozvolu za karte
     LaunchedEffect(Unit) {
         val permission = Manifest.permission.ACCESS_FINE_LOCATION
         if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
@@ -103,7 +103,7 @@ fun AddCatchScreen(
     }
 
     Column (modifier = Modifier.fillMaxSize().
-            padding(horizontal = 16.dp,vertical = 32.dp)) {
+    padding(horizontal = 16.dp,vertical = 32.dp)) {
         Text(
             text = "Add fish",
             style = MaterialTheme.typography.headlineLarge
