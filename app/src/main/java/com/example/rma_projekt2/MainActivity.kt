@@ -24,6 +24,7 @@ import com.google.firebase.auth.FirebaseAuth
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseAuth.getInstance().signOut()
         enableEdgeToEdge()
 
         setContent {
@@ -33,14 +34,9 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    // Check if user is authenticated, redirect to login if not
                     val currentUser = FirebaseAuth.getInstance().currentUser
-                    if (currentUser == null) {
-                        navController.navigate("login") {
-                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                        }
-                    }
-                    AppNavHost(navController)
+                    val startDestination = if (currentUser == null) "login" else "home"
+                    AppNavHost(navController, startDestination)
                 }
             }
         }
@@ -48,10 +44,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
+fun AppNavHost(
+    navController: NavHostController,
+    startDestination: String,
+    modifier: Modifier = Modifier
+) {
     NavHost(
         navController = navController,
-        startDestination = "login",
+        startDestination = startDestination,
         modifier = modifier
     ) {
         composable("login") { LoginScreen(navController = navController) }

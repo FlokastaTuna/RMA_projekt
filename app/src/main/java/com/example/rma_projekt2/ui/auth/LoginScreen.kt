@@ -3,6 +3,7 @@ package com.example.rma_projekt2.ui.auth
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -27,7 +28,18 @@ fun LoginScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Prijava", fontSize = 24.sp)
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Fintastic Tales",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        Spacer(modifier = Modifier.height(50.dp))
+        Text("Login", fontSize = 24.sp)
 
         OutlinedTextField(
             value = email,
@@ -39,7 +51,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Lozinka") },
+            label = { Text("Password") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation()
         )
@@ -65,7 +77,7 @@ fun LoginScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Prijava")
+            Text("Login")
         }
 
         Button(
@@ -76,7 +88,7 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .padding(top = 8.dp)
         ) {
-            Text("Registracija")
+            Text("Register")
         }
     }
 }

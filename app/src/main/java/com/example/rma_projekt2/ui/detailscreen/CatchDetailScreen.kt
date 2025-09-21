@@ -1,11 +1,15 @@
 package com.example.rma_projekt2.ui.detailscreen
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
@@ -37,10 +41,7 @@ fun CatchDetailScreen(
 
     LaunchedEffect(catchId) {
         if (catchId.isNotEmpty()) {
-            FirebaseFirestore.getInstance().collection("catches")
-                .document(catchId)
-                .get()
-                .addOnSuccessListener { doc ->
+            FirebaseFirestore.getInstance().collection("catches").document(catchId).get().addOnSuccessListener { doc ->
                     if (doc.exists()) {
                         catch = Catch(
                             id = doc.id,
@@ -48,7 +49,9 @@ fun CatchDetailScreen(
                             weight = doc.getDouble("weight") ?: 0.0,
                             photoUrl = doc.getString("photoUrl") ?: "",
                             userID = doc.getString("userID") ?: "",
-                            createdAt = doc.getTimestamp("createdAt")?.toDate()?.time ?: 0L
+                            createdAt = doc.getTimestamp("createdAt")?.toDate()?.time ?: 0L,
+                            latitude = doc.getDouble("latitude"),
+                            longitude = doc.getDouble("longitude")
                         )
                     } else {
                         error = "Catch not found"
@@ -80,7 +83,14 @@ fun CatchDetailScreen(
         }
         catch != null -> {
             val c = catch!!
-            Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            Column (modifier = Modifier.fillMaxSize().
+                    padding(horizontal = 16.dp,
+                    vertical = 32.dp)) {
+                Text(
+                    text = "Details",
+                    style = MaterialTheme.typography.headlineLarge
+                )
+                Spacer(Modifier.height(12.dp))
                 Button(onClick = { navController.popBackStack() }) {
                     Text("Back")
                 }
@@ -95,7 +105,7 @@ fun CatchDetailScreen(
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Species: ${c.fishType}", style = MaterialTheme.typography.headlineMedium)
+                Text(c.fishType, style = MaterialTheme.typography.headlineMedium)
                 Text("Weight: ${c.weight} kg", style = MaterialTheme.typography.bodyLarge)
                 Text(
                     text = "Date: ${
@@ -103,6 +113,34 @@ fun CatchDetailScreen(
                     }",
                     style = MaterialTheme.typography.bodyMedium
                 )
+                if (c.latitude != null && c.longitude != null) {
+                    val context = LocalContext.current
+                    val lat = c.latitude
+                    val lng = c.longitude
+
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = "Open catch location in Google Maps",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.clickable {
+                            val uri = Uri.Builder()
+                                .scheme("geo")
+                                .path("0,0")
+                                .appendQueryParameter(
+                                    "q",
+                                    String.format(java.util.Locale.US, "%.6f,%.6f(Catch)", lat, lng)
+                                )
+                                .build()
+
+                            val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                                setPackage("com.google.android.apps.maps")
+                            }
+                            context.startActivity(intent)
+                        }
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(32.dp))
 
                 if (currentUser.uid == c.userID) {

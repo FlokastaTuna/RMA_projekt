@@ -1,19 +1,24 @@
 package com.example.rma_projekt2.ui.home
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.example.rma_projekt2.R
 import com.example.rma_projekt2.viewmodel.Catch
 import com.example.rma_projekt2.viewmodel.CatchViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -34,7 +39,8 @@ fun HomeScreen(
     }
 
     val userName = currentUser.displayName ?: currentUser.email ?: "User"
-    var logoutExpanded by remember { mutableStateOf(false) }
+    var menuExpanded by remember { mutableStateOf(false) }
+
     var filterExpanded by remember { mutableStateOf(false) }
     var selectedField by remember { mutableStateOf("None") }
     var ascending by remember { mutableStateOf(true) }
@@ -64,7 +70,60 @@ fun HomeScreen(
         if (!ascending) sorted.reversed() else sorted
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 32.dp)) {
+
+        // --- TOP BAR with hamburger menu ---
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Welcome back!",
+                style = MaterialTheme.typography.headlineMedium
+            )
+
+            Box {
+                IconButton(onClick = { menuExpanded = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Menu"
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Add Catch") },
+                        onClick = {
+                            menuExpanded = false
+                            navController.navigate("addCatch")
+                        }
+                    )
+                    HorizontalDivider()
+                    DropdownMenuItem(
+                        text = { Text(userName) },
+                        onClick = {} // not clickable, just shows user
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Logout") },
+                        onClick = {
+                            FirebaseAuth.getInstance().signOut()
+                            menuExpanded = false
+                            navController.navigate("login") {
+                                popUpTo("home") { inclusive = true }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // --- Body content ---
         if (loading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
@@ -73,31 +132,7 @@ fun HomeScreen(
             Text(text = error!!, color = MaterialTheme.colorScheme.error)
             Spacer(modifier = Modifier.height(16.dp))
         } else {
-            Box {
-                Text(
-                    text = "Hi, $userName",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.clickable { logoutExpanded = true }
-                )
-                DropdownMenu(
-                    expanded = logoutExpanded,
-                    onDismissRequest = { logoutExpanded = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Logout") },
-                        onClick = {
-                            FirebaseAuth.getInstance().signOut()
-                            logoutExpanded = false
-                            navController.navigate("login") {
-                                popUpTo("home") { inclusive = true }
-                            }
-                        }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
+            // Filter section
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -140,23 +175,17 @@ fun HomeScreen(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = { navController.navigate("addCatch") },
-                modifier = Modifier.padding(vertical = 8.dp)
-            ) {
-                Text("Add Catch")
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Catch list or empty state
             if (filteredCatches.isEmpty()) {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No pictures added yet")
+                    Text("No catches yet, start fishing!", color = Color.White)
                 }
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -179,24 +208,41 @@ fun CatchItem(catch: Catch, navController: NavHostController) {
                 if (catch.id.isNotEmpty()) {
                     navController.navigate("catchDetail/${catch.id}")
                 } else {
-                    println("Invalid catch ID: ${catch.id}") // Debug log
+                    println("Invalid catch ID: ${catch.id}")
                 }
             },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             if (catch.photoUrl.isNotEmpty()) {
                 Image(
-                    painter = rememberAsyncImagePainter(
-                        model = catch.photoUrl,
-                    ),
+                    painter = rememberAsyncImagePainter(catch.photoUrl),
                     contentDescription = "Fish photo",
-                    modifier = Modifier.fillMaxWidth().height(200.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .clip(MaterialTheme.shapes.medium),
+                    alignment = Alignment.Center
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(catch.fishType, style = MaterialTheme.typography.bodyLarge)
-            Text("Weight: ${catch.weight} kg", style = MaterialTheme.typography.bodyMedium)
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = catch.fishType,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Text(
+                text = "️⚖️ Weight: ${catch.weight} kg",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

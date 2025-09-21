@@ -11,7 +11,9 @@ data class Catch(
     val weight: Double = 0.0,
     val photoUrl: String = "",
     val userID: String = "",
-    val createdAt: Long = 0L
+    val createdAt: Long = 0L,
+    val latitude: Double? = null,
+    val longitude: Double? = null
 )
 
 class CatchViewModel : ViewModel() {
@@ -37,7 +39,9 @@ class CatchViewModel : ViewModel() {
                             weight = doc.getDouble("weight") ?: 0.0,
                             photoUrl = doc.getString("photoUrl") ?: "",
                             userID = doc.getString("userID") ?: "",
-                            createdAt = doc.getTimestamp("createdAt")?.toDate()?.time ?: 0L
+                            createdAt = doc.getTimestamp("createdAt")?.toDate()?.time ?: 0L,
+                            latitude = doc.getDouble("latitude"),
+                            longitude = doc.getDouble("longitude")
                         )
                     } catch (e: Exception) {
                         null // Skip invalid documents
